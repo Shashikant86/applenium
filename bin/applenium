@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
-require_relative 'generate.rb'
 require 'applenium/version'
 require 'fileutils'
+require 'tempfile'
+require 'json'
+require "rubygems"
 
 lib_dir = File.expand_path("../lib", File.dirname(__FILE__))
 $:.unshift lib_dir unless $:.include?(lib_dir)
 
 # @base_dir = File.join(FileUtils.pwd)
-@root_dir =File.join(FileUtils.pwd)
+@root_dir =File.join(FileUtils.pwd, "cucumber")
 @root_feature_dir =File.join(@root_dir, "features")
 @root_lib_dir =File.join(@root_dir, "lib")
 @root_scripts_dir =File.join(@root_dir, "script")
@@ -15,6 +17,123 @@ $:.unshift lib_dir unless $:.include?(lib_dir)
 @source_feature_dir =File.join(@source_dir, "features")
 @source_lib_dir =File.join(@source_dir, "lib")
 @source_scripts_dir =File.join(@source_dir, "scripts")
+@source_config_dir =File.join(@source_dir, "config_files")
+
+def applinium_scaffold
+  msg("Question") do
+    puts "copying all confile files"
+    puts "It will contain Gemfile, rakefile, package.json, cucumber.yml etc etc"
+    puts "Please hit return to create"
+  end
+  exit 2 unless STDIN.gets.chomp == ''
+
+  FileUtils.cp_r(@source_config_dir, @root_dir)
+
+  msg("Info") do
+    puts "Config files created. \n"
+  end
+
+  if File.exists?(@root_feature_dir)
+    puts "There is already features directory. Please remane existing features directory to carry on "
+    exit 1
+  end
+  msg("Question") do
+    puts "creating features directory."
+    puts "It will contain all your project tests and support and tep definitions directory for cucumber."
+    puts "Please hit return to confirm that's what you want."
+  end
+  exit 2 unless STDIN.gets.chomp == ''
+
+  FileUtils.cp_r(@source_feature_dir, @root_feature_dir)
+
+  msg("Info") do
+    puts "features subdirectory created. \n"
+  end
+
+  if File.exists?(@root_lib_dir)
+    puts "There is already lib directory. Please remane existing lib directory to carry on "
+    exit 1
+  end
+  msg("Question") do
+    puts "creating lib directory."
+    puts "It will contain all your project ruby files."
+    puts "Please hit return to confirm that's what you want."
+  end
+  exit 2 unless STDIN.gets.chomp == ''
+
+  FileUtils.cp_r(@source_lib_dir, @root_lib_dir)
+
+  msg("Info") do
+    puts "lib subdirectory created. \n"
+  end
+
+  if File.exists?(@root_scripts_dir)
+    puts "There is already scripts directory. Please remane existing scripts directory to carry on "
+    exit 1
+  end
+  msg("Question") do
+    puts "creating scripts directory."
+    puts "It will contain all your project bash scrips files."
+    puts "Please hit return to confirm that's what you want."
+  end
+  exit 2 unless STDIN.gets.chomp == ''
+
+  FileUtils.cp_r(@source_scripts_dir, @root_scripts_dir)
+
+  msg("Info") do
+    puts "Scripts subdirectory created. \n"
+  end
+
+
+
+def msg(title, &block)
+  puts "\n" + "-"*10 + title + "-"*10
+  block.call
+  puts "-"*10 + "-------" + "-"*10 + "\n"
+end
+
+def print_usage
+  puts <<EOF
+
+  Usage: applenium <command-name> [parameters] [options]
+
+  <command-name> can be one of
+    help
+      prints more detailed help information.
+    gen
+      generate a features folder structure.
+    version
+      prints the gem version
+
+  <options> can be
+     -v, --verbose   Turns on verbose logging
+EOF
+end
+
+def print_help
+  puts <<EOF
+
+  Usage: applenium <command-name> [parameters] [options]
+
+  <command-name> can be one of
+    help
+    gen
+    version
+
+    Commands:
+      help : prints more detailed help information.
+
+      gen  : creates a skeleton features dir. This is usually used once when
+             setting up selnium-cucumber to ensure that the features folder contains
+             the right step definitions and environment to run with cucumber.
+
+      version : prints the gem version
+
+  <Options>
+      -v, --verbose  Turns on verbose logging
+EOF
+end
+
 
 if (ARGV.length == 0)
   print_usage
@@ -22,8 +141,8 @@ else
 	cmd = ARGV.shift
 	if cmd == "help"
   		print_help
-	elsif cmd == "gen"
-  		applenium_scaffold
+	elsif cmd == "setup"
+    applinium_scaffold
 	elsif cmd == "version"
 		puts Applenium::VERSION
   	else
