@@ -1,0 +1,11 @@
+{
+  "version": "0.0.0",
+  "description": "Applenium nodeJS modules",
+  "dependencies": {
+    "webdriverjs" : "*",
+    "appium": "*"
+  },
+
+  "author": "Shashikant Jagtap",
+  "license": "MIT"
+}
