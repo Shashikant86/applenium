@@ -1,9 +1,32 @@
 #!/usr/bin/env ruby
+require_relative 'generate.rb'
+require 'applenium/version'
+require 'fileutils'
 
 lib_dir = File.expand_path("../lib", File.dirname(__FILE__))
 $:.unshift lib_dir unless $:.include?(lib_dir)
-require 'fileutils'
-@root_dir =File.join(FileUtils.pwd, "framework")
-@source_dir = File.join(File.dirname(__FILE__), '..', 'scaffold')
 
-FileUtils.cp_r(@source_dir, @root_dir)
+# @base_dir = File.join(FileUtils.pwd)
+@root_dir =File.join(FileUtils.pwd)
+@root_feature_dir =File.join(@root_dir, "features")
+@root_lib_dir =File.join(@root_dir, "lib")
+@root_scripts_dir =File.join(@root_dir, "script")
+@source_dir = File.join(File.dirname(__FILE__), '..', 'scaffold')
+@source_feature_dir =File.join(@source_dir, "features")
+@source_lib_dir =File.join(@source_dir, "lib")
+@source_scripts_dir =File.join(@source_dir, "scripts")
+
+if (ARGV.length == 0)
+  print_usage
+else
+	cmd = ARGV.shift
+	if cmd == "help"
+  		print_help
+	elsif cmd == "gen"
+  		applenium_scaffold
+	elsif cmd == "version"
+		puts Applenium::VERSION
+  	else
+  		print_usage
+	end
+end
