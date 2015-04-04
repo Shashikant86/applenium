@@ -20,11 +20,17 @@ $:.unshift lib_dir unless $:.include?(lib_dir)
 @source_config_dir =File.join(@source_dir, "config_files")
 
 def applinium_scaffold
+  if File.exists?(@root_feature_dir)
+    puts "There is already features directory. Please remane existing features directory to carry on "
+    exit 1
+  end
+
   msg("Question") do
     puts "copying all confile files"
     puts "It will contain Gemfile, rakefile, package.json, cucumber.yml etc etc"
     puts "Please hit return to create"
   end
+
   exit 2 unless STDIN.gets.chomp == ''
 
   FileUtils.cp_r(@source_config_dir, @root_dir)
@@ -83,8 +89,7 @@ def applinium_scaffold
   msg("Info") do
     puts "Scripts subdirectory created. \n"
   end
-
-
+end
 
 def msg(title, &block)
   puts "\n" + "-"*10 + title + "-"*10
